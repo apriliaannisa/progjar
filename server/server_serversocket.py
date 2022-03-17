@@ -1,40 +1,38 @@
-import socketserver
+import socketserver 
 import os
 
-def bytes(number):
+def konversibytes(no):
     hasil = bytearray()
-    hasil.append(number & 255)
-    for i in range(3):
-        number = number >> 8
-        hasil.append(number & 255)
+    hasil.append(no & 255)
+    for i in range(3): 
+        no = no >> 8
+        hasil.append(no & 255)
     return hasil
 
-
 class TCPHandler(socketserver.BaseRequestHandler):
-
+    
     def handle(self):
         while True:
             try:
-                data = self.request.recv(1024).decode()
-                if os.path.exists(data):
-                    length = os.path.getsize(data)
+                d = self.request.recv(1024).decode()
+                if os.path.exists(d):
+                    panjang = os.path.getsize(d)
                     
-                    with open(data, 'rb') as infile:
-                        data = infile.read()
+                    with open(d, 'rb') as infile:
+                        d = infile.read() 
+                        self.request.send(konversibytes(panjang)) 
+                        byte = 0
+                        while byte < panjang:
+                            self.request.send(d[byte:byte+1024])
+                            byte = byte + 1024
 
-                    self.request.send(bytes(length)) # has to be 4 bytes
-                    byte = 0
-                    while byte < length:
-                        self.request.send(data[byte:byte+1024])
-                        byte += 1024
-                    infile.close()
+                infile.close()
             except ConnectionAbortedError:
-                print("No connection")
+                print("No Connection")
                 break
 
 if __name__ == "__main__":
-    HOST = "localhost", 
-    PORT = 6000
-
-    with socketserver.TCPServer((HOST, PORT), TCPHandler) as server:
+    # Buat server, sambung ke localhost pada port 9999
+    with socketserver.TCPServer(('localhost', 5000), TCPHandler) as server:
+        # Aktifkan server; ini akan terus berjalan sampai program di interupsi dengan Ctrl-C
         server.serve_forever()
