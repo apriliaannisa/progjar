@@ -18,15 +18,15 @@ class TCPHandler(socketserver.BaseRequestHandler):
                 if os.path.exists(d):
                     panjang = os.path.getsize(d)
                     
-                    with open(d, 'rb') as infile:
-                        d = infile.read() 
+                    with open(d, 'rb') as file:
+                        d = file.read() 
                         self.request.send(konversibytes(panjang)) 
                         byte = 0
                         while byte < panjang:
                             self.request.send(d[byte:byte+1024])
                             byte = byte + 1024
 
-                infile.close()
+                file.close()
             except ConnectionAbortedError:
                 print("No Connection")
                 break
